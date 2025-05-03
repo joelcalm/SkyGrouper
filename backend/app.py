@@ -24,6 +24,10 @@ group_trips = mongo.db.groupTrips
 def create_group_trip():
     """Create a new group trip with a unique code"""
     try:
+        # Get data from request
+        data = request.json or {}
+        num_of_members = data.get('numOfMembers', 2)
+        
         # Generate a unique group trip ID (a 6-character code)
         group_trip_id = str(uuid.uuid4())[:6].upper()
         
@@ -31,7 +35,8 @@ def create_group_trip():
         new_trip = {
             "groupTripId": group_trip_id,
             "users": [],
-            "createdAt": datetime.now()
+            "createdAt": datetime.now(),
+            "numOfMembers": num_of_members
         }
         
         # Insert into MongoDB

@@ -1,4 +1,3 @@
-// frontend_extracted/project/src/pages/WaitingRoomPage.tsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTripContext } from '../TripContext';
@@ -66,6 +65,7 @@ const WaitingRoomPage: React.FC = () => {
   // Count completed members
   const completedCount = groupData?.users.filter(user => user.completed).length || 0;
   const totalCount = groupData?.users.length || 0;
+  const expectedMembers = groupData?.numOfMembers || 0;
 
   return (
     <Layout>
@@ -93,20 +93,20 @@ const WaitingRoomPage: React.FC = () => {
         <div className="mb-6">
           <div className="flex justify-between mb-2">
             <span className="text-gray-700">Group members completed:</span>
-            <span className="font-medium">{completedCount} / {totalCount}</span>
+            <span className="font-medium">{completedCount} / {groupData?.numOfMembers}</span>
           </div>
           
           <div className="w-full bg-gray-200 rounded-full h-2.5">
             <div 
               className="bg-blue-600 h-2.5 rounded-full" 
-              style={{ width: `${(completedCount / Math.max(totalCount, 1)) * 100}%` }}
+              style={{ width: `${(completedCount / Math.max(groupData?.numOfMembers, 1)) * 100}%` }}
             ></div>
           </div>
+          
         </div>
         
         {groupData && groupData.users.length > 0 && (
           <div className="mb-6">
-            <h2 className="text-lg font-medium mb-3">Group Members</h2>
             <ul className="divide-y divide-gray-200">
               {groupData.users.map((user, index) => (
                 <li key={user.userId || index} className="py-2 flex justify-between items-center">

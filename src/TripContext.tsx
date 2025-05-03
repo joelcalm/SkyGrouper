@@ -8,7 +8,7 @@ interface TripContextType {
   userData: UserData;
   loading: boolean;
   error: string | null;
-  createNewTrip: () => Promise<string>;
+  createNewTrip: (numOfMembers: number) => Promise<string>;
   joinTrip: (groupTripId: string) => Promise<void>;
   updateOrigin: (from: string) => Promise<void>;
   updateDestinationIdeas: (destinations: string) => Promise<void>;
@@ -70,10 +70,10 @@ export const TripProvider: React.FC<TripProviderProps> = ({ children }) => {
     }
   };
 
-  const createNewTrip = async (): Promise<string> => {
+  const createNewTrip = async (numOfMembers: number = 2): Promise<string> => {
     try {
       setLoading(true);
-      const newTripId = await createGroupTrip();
+      const newTripId = await createGroupTrip(numOfMembers);
       setGroupTripId(newTripId);
       
       // Create a new user in this trip

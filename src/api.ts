@@ -25,12 +25,13 @@ export interface GroupTrip {
   groupTripId: string;
   users: UserData[];
   createdAt: string;
+  numOfMembers: number;
 }
 
 // API functions
-export const createGroupTrip = async (): Promise<string> => {
+export const createGroupTrip = async (numOfMembers: number = 2): Promise<string> => {
   try {
-    const response = await axios.post(`${API_URL}/group-trip`);
+    const response = await axios.post(`${API_URL}/group-trip`, { numOfMembers });
     return response.data.groupTripId;
   } catch (error) {
     console.error('Error creating group trip:', error);
