@@ -12,6 +12,7 @@ import DateSelectionPage from './pages/DateSelectionPage';
 import ThemeSelectionPage from './pages/ThemeSelectionPage';
 import Budget from './pages/Budget';
 import WaitingRoomPage from './pages/WaitingRoomPage';
+import ResultsPage from './pages/ResultsPage';
 
 function App() {
   return (
@@ -26,6 +27,8 @@ function App() {
           <Route path="/theme-selection" element={<ThemeSelectionPage />} />
           <Route path="/budget" element={<Budget />} />
           <Route path="/waiting-room" element={<WaitingRoomPage />} />
+          <Route path="/results" element={<ResultsPage />} />
+
         </Routes>
       </Router>
     </TripProvider>
