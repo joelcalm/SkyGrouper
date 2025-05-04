@@ -8,13 +8,18 @@ import os
 from datetime import datetime
 import uuid
 import json
+from dotenv import load_dotenv
+
+
+# at the very top of your file, before any os.getenv calls:
+load_dotenv()
 
 app = Flask(__name__)
-# Enable CORS to allow requests from your React frontend
 CORS(app)
 
-# Configure MongoDB connection
-app.config["MONGO_URI"] = "mongodb+srv://atlas_user:MySimplePass123@cluster0.mfz1n8y.mongodb.net/groupTrips?retryWrites=true&w=majority"
+# now this will actually read from your .env file
+mongo_uri = os.getenv("MONGO_URI")
+app.config["MONGO_URI"] = mongo_uri
 mongo = PyMongo(app)
 
 # Collection reference
