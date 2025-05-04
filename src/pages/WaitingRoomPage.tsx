@@ -17,6 +17,7 @@ const WaitingRoomPage: React.FC = () => {
 
   const [timeLeft, setTimeLeft] = useState<number>(10);
   const [isCompleted, setIsCompleted] = useState<boolean>(false);
+  const [loadingResults, setLoadingResults] = useState<boolean>(false);
 
   // Redirect & mark user complete
   useEffect(() => {
@@ -48,8 +49,35 @@ const WaitingRoomPage: React.FC = () => {
 
   const completedCount = groupData?.users.filter(u => u.completed).length || 0;
   const totalCount = groupData?.numOfMembers || 0;
-
   const allDone = completedCount === totalCount;
+
+  // Handler for View Results button
+  const handleViewResults = async () => { 
+    if (!groupTripId || !groupData) return;
+    setLoadingResults(true);
+    try {
+      const response = await fetch('http://127.0.0.1:7000/plan-trip', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      // Handle server response if needed
+      console.log('Plan-trip response:', data);
+      navigate('/results', { state: { results: data } });
+    } catch (error) {
+      console.error('Error fetching results:', error);
+      alert('Failed to fetch trip plan. Please try again.');
+    } finally {
+      setLoadingResults(false);
+    }
+  };
 
   return (
     <Layout>
@@ -151,17 +179,21 @@ const WaitingRoomPage: React.FC = () => {
             {/* Waiting / Complete Section */}
             <div className="text-center">
               {allDone && timeLeft <= 0 ? (
-                <>
-                  <p className="text-green-600 font-medium mb-4">
-                    All preferences collected! Ready to see results.
-                  </p>
-                  <button
-                    onClick={() => navigate('/results')}
-                    className="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
-                  >
-                    View Results
-                  </button>
-                </>
+                loadingResults ? (
+                  <Loader2 className="animate-spin text-sky-600" size={48} />
+                ) : (
+                  <>
+                    <p className="text-green-600 font-medium mb-4">
+                      All preferences collected! Ready to see results.
+                    </p>
+                    <button
+                      onClick={handleViewResults}
+                      className="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+                    >
+                      View Results
+                    </button>
+                  </>
+                )
               ) : (
                 <div className="flex flex-col items-center space-y-4">
                   <Loader2 className="animate-spin text-sky-600" size={48} />
