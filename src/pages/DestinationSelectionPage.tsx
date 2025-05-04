@@ -1,13 +1,13 @@
-// frontend_extracted/project/src/pages/DestinationSelectionPage.tsx
+// src/pages/DestinationSelectionPage.tsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin } from 'lucide-react';
+import { MapPin, ArrowLeft } from 'lucide-react';
 import { useTripContext } from '../TripContext';
 import Layout from '../components/Layout';
+import { BackgroundDecoration } from '../components/BackgroundDecoration';
 
 const DestinationSelectionPage: React.FC = () => {
   const navigate = useNavigate();
-
   const {
     groupTripId,
     userId,
@@ -18,160 +18,166 @@ const DestinationSelectionPage: React.FC = () => {
 
   const [destination, setDestination] = useState('');
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [error, setError] = useState('');
 
-  /* ------------------------------------------------------------------ */
-  /*  Lifecycle helpers                                                 */
-  /* ------------------------------------------------------------------ */
-
-  // Pre-fill if the user is coming back - fix for userData.to vs destinationIdeas
+  // Prefill on back-nav
   useEffect(() => {
-    if (userData?.destinationIdeas && userData.destinationIdeas.length > 0) {
+    if (userData?.destinationIdeas?.length) {
       setDestination(userData.destinationIdeas[0]);
     }
   }, [userData]);
 
-  // Kick the user back to start if the essential IDs are missing
+  // Kick to start if IDs missing
   useEffect(() => {
-    if (!groupTripId || !userId) {
-      navigate('/');
-    }
+    if (!groupTripId || !userId) navigate('/');
   }, [groupTripId, userId, navigate]);
 
-  // Update document title
-  useEffect(() => {
-    document.title = 'Select Destination | SkyTravel';
-  }, []);
-
-  /* ------------------------------------------------------------------ */
-  /*  Autocomplete (mocked for now)                                     */
-  /* ------------------------------------------------------------------ */
-
+  // Mock autocomplete
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setDestination(value);
-
-    if (value.length > 1) {
-      // In production you would query an airports API here
+    const v = e.target.value;
+    setDestination(v);
+    if (v.length > 1) {
       const mock = [
-        `${value.toUpperCase()} – Barcelona El Prat Airport`,
-        `${value.toUpperCase()} – Rome Fiumicino Airport`,
-        `${value.toUpperCase()} – Sydney Kingsford Smith Airport`,
-        `${value.toUpperCase()} – Dubai International Airport`,
+        'Barcelona – (BCN)',
+        'London – (LHR)',
+        'Paris – (CDG)',
+        'New York – (JFK)',
+        'Tokyo – (HND)',
       ];
-      setSuggestions(mock);
+      setSuggestions(
+        mock.filter(m =>
+          m.toLowerCase().includes(v.toLowerCase())
+        )
+      );
+      setShowSuggestions(true);
     } else {
-      setSuggestions([]);
+      setShowSuggestions(false);
     }
   };
 
-  const handleSelectSuggestion = (choice: string) => {
-    setDestination(choice);
+  const handleSelect = (s: string) => {
+    setDestination(s);
     setSuggestions([]);
+    setShowSuggestions(false);
   };
-
-  /* ------------------------------------------------------------------ */
-  /*  Submit                                                            */
-  /* ------------------------------------------------------------------ */
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!destination.trim()) {
       setError('Please choose a destination');
       return;
     }
-
     try {
-      // Fix: Pass an array instead of a string to match the API function
       await updateDestinationIdeas(destination.trim());
       navigate('/date-selection');
-    } catch (err) {
-      console.error('Error saving destination:', err);
+    } catch {
       setError('Failed to save your destination. Please try again.');
     }
   };
 
-  /* ------------------------------------------------------------------ */
-  /*  Render                                                            */
-  /* ------------------------------------------------------------------ */
-
   return (
     <Layout>
-      <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-lg mt-10">
-        <h1 className="text-2xl font-bold text-center mb-6">
-          What’s your destination?
-        </h1>
+      <div className="relative min-h-[calc(100vh-80px)] bg-gradient-to-b from-sky-50 to-white overflow-hidden">
+        <BackgroundDecoration />
 
-        {groupTripId && (
-          <div className="mb-4 p-3 bg-blue-50 rounded-md">
-            <p className="text-sm text-blue-700">
-              Group Code:&nbsp;
-              <span className="font-bold">{groupTripId}</span>
+        <div className="container mx-auto px-4 py-12 relative z-10">
+          {/* Hero header */}
+          <div className="text-center mb-8">
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-2">
+              What’s your destination?
+            </h1>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Tell us where you’d like to fly.
             </p>
           </div>
-        )}
 
-        <form onSubmit={handleSubmit}>
-          {/* --- input -------------------------------------------------- */}
-          <div className="mb-4 relative">
-            <label
-              htmlFor="destination"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Where are you flying to?
-            </label>
-
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <MapPin size={18} className="text-gray-400" />
-              </div>
-              <input
-                id="destination"
-                type="text"
-                value={destination}
-                onChange={handleInputChange}
-                placeholder="City or airport"
-                className="pl-10 w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-
-            {suggestions.length > 0 && (
-              <ul className="absolute z-10 w-full bg-white border border-gray-200 rounded-md mt-1 shadow-lg max-h-48 overflow-y-auto">
-                {suggestions.map((s, i) => (
-                  <li
-                    key={i}
-                    className="px-4 py-2 hover:bg-gray-50 cursor-pointer"
-                    onClick={() => handleSelectSuggestion(s)}
+          <div className="max-w-md mx-auto">
+            {/* Group code banner */}
+            {groupTripId && (
+              <div className="mb-6 p-4 bg-blue-50 border border-sky-100 rounded-2xl">
+                <p className="text-sm text-blue-700 flex justify-between items-center">
+                  <span>
+                    Group Code: <strong>{groupTripId}</strong>
+                  </span>
+                  <button
+                    className="text-sm text-blue-600 hover:text-blue-800"
+                    onClick={() => {
+                      navigator.clipboard.writeText(groupTripId);
+                      alert('Group code copied!');
+                    }}
                   >
-                    {s}
-                  </li>
-                ))}
-              </ul>
+                    Copy
+                  </button>
+                </p>
+              </div>
             )}
 
-            {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
-          </div>
+            <form onSubmit={handleSubmit}>
+              <div className="bg-white border border-sky-100 rounded-2xl p-8 shadow-lg">
+                {/* Input with icon */}
+                <label
+                  htmlFor="destination"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Where are you flying to?
+                </label>
+                <div className="relative mb-4">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <MapPin size={18} className="text-gray-400" />
+                  </div>
+                  <input
+                    id="destination"
+                    type="text"
+                    value={destination}
+                    onChange={handleInputChange}
+                    onFocus={() => destination.length > 1 && setShowSuggestions(true)}
+                    onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                    placeholder="City or airport"
+                    className="pl-10 w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
+                  />
 
-          {/* --- nav buttons ------------------------------------------- */}
-          <div className="flex justify-between mt-6">
-            <button
-              type="button"
-              onClick={() => navigate('/origin-selection')}
-              className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
-            >
-              Back
-            </button>
+                  {/* Suggestions dropdown */}
+                  {showSuggestions && suggestions.length > 0 && (
+                    <ul className="absolute z-20 w-full bg-white border border-gray-200 rounded-lg mt-1 shadow-lg max-h-48 overflow-y-auto">
+                      {suggestions.map((s, i) => (
+                        <li
+                          key={i}
+                          className="px-4 py-2 hover:bg-gray-50 cursor-pointer"
+                          onClick={() => handleSelect(s)}
+                        >
+                          {s}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
-            >
-              {loading ? 'Saving…' : 'Next'}
-            </button>
+                {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+
+                {/* Navigation */}
+                <div className="flex justify-between">
+                  <button
+                    type="button"
+                    onClick={() => navigate('/origin-selection')}
+                    className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
+                  >
+                    <ArrowLeft size={16} className="mr-2" />
+                    Back
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="relative inline-block bg-sky-600 hover:bg-sky-700 text-white font-medium px-6 py-3 rounded-lg transition overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {loading ? 'Saving…' : 'Next'}
+                    <span className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  </button>
+                </div>
+              </div>
+            </form>
           </div>
-        </form>
+        </div>
       </div>
     </Layout>
   );

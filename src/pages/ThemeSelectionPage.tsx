@@ -1,23 +1,24 @@
-// frontend_extracted/project/src/pages/ThemeSelectionPage.tsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTripContext } from '../TripContext';
 import Layout from '../components/Layout';
+import { BackgroundDecoration } from '../components/BackgroundDecoration';
+import { 
+  Palmtree, Mountain, Utensils, Building, Ticket, Martini,
+  Compass, Camera, Tent, BookOpen
+} from 'lucide-react';
 
+// Reduced to 10 most relevant interests with icons
 const INTERESTS = [
-  'Culture',
-  'Sports',
-  'Live Events',
-  'Beach',
-  'Mountain',
-  'Nightlife',
-  'Party',
-  'Food',
-  'Shopping',
-  'Relaxation',
-  'Adventure',
-  'Nature',
-  'History'
+  { name: 'Beach', icon: <Palmtree size={24} /> },
+  { name: 'Mountain', icon: <Mountain size={24} /> },
+  { name: 'Food', icon: <Utensils size={24} /> },
+  { name: 'Culture', icon: <Building size={24} /> },
+  { name: 'Live Events', icon: <Ticket size={24} /> },
+  { name: 'Nightlife', icon: <Martini size={24} /> },
+  { name: 'Adventure', icon: <Compass size={24} /> },
+  { name: 'Sightseeing', icon: <Camera size={24} /> },
+  { name: 'Nature', icon: <Tent size={24} /> },
 ];
 
 const ThemeSelectionPage: React.FC = () => {
@@ -60,7 +61,7 @@ const ThemeSelectionPage: React.FC = () => {
     
     try {
       await updateInterests(selectedInterests);
-      navigate('/waiting-room');
+      navigate('/budget');
     } catch (err) {
       console.error('Error saving interests:', err);
       setError('Failed to save your interests. Please try again.');
@@ -69,61 +70,91 @@ const ThemeSelectionPage: React.FC = () => {
 
   return (
     <Layout>
-      <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-lg mt-10">
-        <h1 className="text-2xl font-bold text-center mb-6">What are you looking for?</h1>
+      <div className="relative min-h-[calc(100vh-80px)] overflow-hidden bg-gradient-to-b from-sky-50 to-white">
+        <BackgroundDecoration />
         
-        {groupTripId && (
-          <div className="mb-4 p-3 bg-blue-50 rounded-md">
-            <p className="text-sm text-blue-700">
-              Group Code: <span className="font-bold">{groupTripId}</span>
+        <div className="container mx-auto px-4 py-12 relative z-10">
+          <div className="text-center mb-8">
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-3">What are you looking for?</h1>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Choose the experiences that interest you most for this trip
             </p>
           </div>
-        )}
-        
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Select your interests (select all that apply)
-            </label>
-            
-            <div className="grid grid-cols-2 gap-2">
-              {INTERESTS.map(interest => (
-                <div 
-                  key={interest}
-                  onClick={() => toggleInterest(interest)}
-                  className={`
-                    p-3 border rounded-md cursor-pointer transition-colors
-                    ${selectedInterests.includes(interest) 
-                      ? 'bg-blue-100 border-blue-500 text-blue-700' 
-                      : 'border-gray-300 hover:bg-gray-50'}
-                  `}
-                >
-                  {interest}
-                </div>
-              ))}
-            </div>
-            
-            {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-          </div>
           
-          <div className="flex justify-between mt-6">
-            <button
-              type="button"
-              onClick={() => navigate('/date-selection')}
-              className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
-            >
-              Back
-            </button>
-            
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-            >
-              {loading ? 'Saving...' : 'Next'}
-            </button>
+          {groupTripId && (
+            <div className="mb-6 p-4 bg-blue-50 border border-blue-100 rounded-xl max-w-md mx-auto">
+              <p className="flex justify-between text-blue-700">
+                <span>Group Code: <span className="font-bold">{groupTripId}</span></span>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(groupTripId);
+                    alert('Group code copied to clipboard');
+                  }}
+                  className="text-blue-600 hover:text-blue-800 focus:outline-none"
+                >
+                  Copy
+                </button>
+              </p>
+            </div>
+          )}
+          
+          <div className="max-w-3xl mx-auto">
+            <form onSubmit={handleSubmit}>
+              <div className="bg-white border border-sky-100 rounded-2xl p-6 shadow-lg">
+                <h2 className="text-xl font-bold text-gray-800 mb-4">Select your interests</h2>
+                <p className="text-gray-600 mb-6">Pick all that appeal to you. These will help us find the perfect destination.</p>
+                
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+                  {INTERESTS.map(interest => (
+                    <div 
+                      key={interest.name}
+                      onClick={() => toggleInterest(interest.name)}
+                      className={`
+                        flex flex-col items-center p-4 border rounded-xl cursor-pointer transition-all
+                        ${selectedInterests.includes(interest.name) 
+                          ? 'bg-sky-50 border-sky-500 text-sky-700 shadow-md' 
+                          : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'}
+                      `}
+                    >
+                      <div className={`
+                        p-3 rounded-full mb-2
+                        ${selectedInterests.includes(interest.name) ? 'bg-sky-100' : 'bg-gray-100'}
+                      `}>
+                        {interest.icon}
+                      </div>
+                      <span className="font-medium">{interest.name}</span>
+                    </div>
+                  ))}
+                </div>
+                
+                {error && (
+                  <div className="p-3 bg-red-50 border-l-4 border-red-500 text-red-700 mb-6 rounded-md">
+                    <p>{error}</p>
+                  </div>
+                )}
+                
+                <div className="flex justify-between">
+                  <button
+                    type="button"
+                    onClick={() => navigate('/date-selection')}
+                    className="px-5 py-2.5 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+                  >
+                    Back
+                  </button>
+                  
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="px-6 py-3 bg-sky-600 hover:bg-sky-700 text-white font-medium rounded-lg transition duration-200 disabled:opacity-70 disabled:cursor-not-allowed relative overflow-hidden group"
+                  >
+                    <span className="relative z-10">{loading ? "Saving..." : "Next"}</span>
+                    <span className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+                  </button>
+                </div>
+              </div>
+            </form>
           </div>
-        </form>
+        </div>
       </div>
     </Layout>
   );

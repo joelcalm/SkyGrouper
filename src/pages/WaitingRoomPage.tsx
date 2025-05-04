@@ -1,153 +1,177 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { User, CheckCircle, Clock, Loader2 } from 'lucide-react';
 import { useTripContext } from '../TripContext';
 import Layout from '../components/Layout';
+import { BackgroundDecoration } from '../components/BackgroundDecoration';
 
 const WaitingRoomPage: React.FC = () => {
   const navigate = useNavigate();
-  const { 
-    groupTripId, 
-    userId, 
-    groupData, 
-    refreshGroupData, 
-    completeUserInput, 
-    loading 
+  const {
+    groupTripId,
+    userId,
+    groupData,
+    refreshGroupData,
+    completeUserInput
   } = useTripContext();
+
   const [timeLeft, setTimeLeft] = useState<number>(10);
   const [isCompleted, setIsCompleted] = useState<boolean>(false);
 
-  // Redirect if no group or user ID
+  // Redirect & mark user complete
   useEffect(() => {
     if (!groupTripId || !userId) {
       navigate('/');
       return;
     }
 
-    // Mark the user as completed
-    const markComplete = async () => {
-      if (!isCompleted) {
-        try {
-          await completeUserInput();
-          setIsCompleted(true);
-        } catch (err) {
-          console.error('Error marking user as complete:', err);
-        }
-      }
-    };
-    
-    markComplete();
+    if (!isCompleted) {
+      completeUserInput()
+        .then(() => setIsCompleted(true))
+        .catch((err) => console.error('Error marking complete:', err));
+    }
   }, [groupTripId, userId, navigate, completeUserInput, isCompleted]);
 
-  // Set up polling for group data
+  // Poll for group updates every 5s
   useEffect(() => {
-    // Initial load
     refreshGroupData();
-    
-    // Set up polling
-    const intervalId = setInterval(() => {
-      refreshGroupData();
-    }, 5000); // Poll every 5 seconds
-    
-    return () => clearInterval(intervalId);
+    const id = setInterval(refreshGroupData, 5000);
+    return () => clearInterval(id);
   }, [refreshGroupData]);
 
-  // Countdown timer for demo purposes
+  // Countdown timer for demo
   useEffect(() => {
     if (timeLeft <= 0) return;
-    
-    const timerId = setTimeout(() => {
-      setTimeLeft(timeLeft - 1);
-    }, 1000);
-    
-    return () => clearTimeout(timerId);
+    const t = setTimeout(() => setTimeLeft((t) => t - 1), 1000);
+    return () => clearTimeout(t);
   }, [timeLeft]);
 
-  // Count completed members
-  const completedCount = groupData?.users.filter(user => user.completed).length || 0;
-  const totalCount = groupData?.users.length || 0;
-  const expectedMembers = groupData?.numOfMembers || 0;
+  const completedCount = groupData?.users.filter(u => u.completed).length || 0;
+  const totalCount = groupData?.numOfMembers || 0;
+
+  const allDone = completedCount === totalCount;
 
   return (
     <Layout>
-      <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-lg mt-10">
-        <h1 className="text-2xl font-bold text-center mb-6">Waiting for Group Members</h1>
-        
-        {groupTripId && (
-          <div className="mb-6 p-4 bg-blue-50 rounded-md">
-            <p className="text-center">
-              <span className="block font-medium mb-2">Share this code with your friends</span>
-              <span className="text-2xl font-bold text-blue-700">{groupTripId}</span>
+      <div className="relative min-h-[calc(100vh-80px)] bg-gradient-to-b from-sky-50 to-white overflow-hidden">
+        <BackgroundDecoration />
+
+        <div className="container mx-auto px-4 py-12 relative z-10">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-2">
+              Waiting for Your Group
+            </h1>
+            <p className="text-lg text-gray-600">
+              Share the code below and wait for everyone to finish.
             </p>
-            <button 
-              className="mt-2 w-full py-2 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors"
-              onClick={() => {
-                navigator.clipboard.writeText(groupTripId);
-                alert('Group code copied to clipboard');
-              }}
-            >
-              Copy Code
-            </button>
           </div>
-        )}
-        
-        <div className="mb-6">
-          <div className="flex justify-between mb-2">
-            <span className="text-gray-700">Group members completed:</span>
-            <span className="font-medium">{completedCount} / {groupData?.numOfMembers}</span>
-          </div>
-          
-          <div className="w-full bg-gray-200 rounded-full h-2.5">
-            <div 
-              className="bg-blue-600 h-2.5 rounded-full" 
-              style={{ width: `${(completedCount / Math.max(groupData?.numOfMembers, 1)) * 100}%` }}
-            ></div>
-          </div>
-          
-        </div>
-        
-        {groupData && groupData.users.length > 0 && (
-          <div className="mb-6">
-            <ul className="divide-y divide-gray-200">
-              {groupData.users.map((user, index) => (
-                <li key={user.userId || index} className="py-2 flex justify-between items-center">
-                  <div>
-                    <span className="font-medium">User {index + 1}</span>
-                    {user.from && <span className="text-gray-500 ml-2">from {user.from}</span>}
-                  </div>
-                  <span className={`px-2 py-1 rounded-md text-xs font-medium ${
-                    user.completed ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                  }`}>
-                    {user.completed ? 'Completed' : 'In Progress'}
+
+          <div className="max-w-md mx-auto">
+            {/* Group Code */}
+            {groupTripId && (
+              <div className="mb-6 p-4 bg-sky-50 border border-sky-100 rounded-2xl text-center">
+                <p className="text-sm text-gray-700 mb-2">
+                  <strong>Group Code:</strong>
+                </p>
+                <div className="flex items-center justify-center space-x-2">
+                  <span className="text-2xl font-mono font-bold text-sky-700">
+                    {groupTripId}
                   </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-        
-        <div className="text-center">
-          <p className="text-gray-600 mb-2">
-            Waiting for everyone to complete their preferences...
-          </p>
-          
-          {/* For demo purposes - in a real app, you'd calculate matches once everyone is done */}
-          {timeLeft <= 0 ? (
-            <div>
-              <p className="text-green-600 font-medium mb-4">
-                All preferences collected! Calculating best destinations for your group.
-              </p>
-              <button
-                onClick={() => navigate('/results')}
-                className="w-full py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
-              >
-                View Results
-              </button>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(groupTripId);
+                      alert('Copied to clipboard!');
+                    }}
+                    className="text-sky-600 hover:text-sky-800 focus:outline-none"
+                  >
+                    Copy
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Progress Bar */}
+            <div className="mb-6">
+              <div className="flex justify-between text-sm text-gray-700 mb-2">
+                <span>Completed:</span>
+                <span className="font-medium">
+                  {completedCount} / {totalCount}
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-3">
+                <div
+                  className="bg-sky-600 h-3 rounded-full transition-width duration-500"
+                  style={{ width: `${totalCount ? (completedCount / totalCount) * 100 : 0}%` }}
+                />
+              </div>
             </div>
-          ) : (
-            <p className="text-sm text-gray-500">
-              Demo mode: Results will be available in {timeLeft} seconds
-            </p>
-          )}
+
+            {/* Members List */}
+            <div className="mb-6 bg-white border border-sky-100 rounded-2xl shadow">
+              <ul>
+                {groupData?.users.map((user, idx) => {
+                  const status = user.completed;
+                  return (
+                    <li
+                      key={user.userId || idx}
+                      className="flex items-center justify-between p-4 hover:bg-gray-50 transition"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <User className="text-gray-400" />
+                        <div>
+                          <p className="font-medium text-gray-800">User {idx + 1}</p>
+                          {user.from && (
+                            <p className="text-sm text-gray-500">from {user.from}</p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        {status ? (
+                          <CheckCircle className="text-green-500" />
+                        ) : (
+                          <Clock className="text-yellow-500" />
+                        )}
+                        <span
+                          className={`text-xs font-medium px-2 py-1 rounded-md ${
+                            status
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-yellow-100 text-yellow-800'
+                          }`}
+                        >
+                          {status ? 'Completed' : 'Waiting'}
+                        </span>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+
+            {/* Waiting / Complete Section */}
+            <div className="text-center">
+              {allDone && timeLeft <= 0 ? (
+                <>
+                  <p className="text-green-600 font-medium mb-4">
+                    All preferences collected! Ready to see results.
+                  </p>
+                  <button
+                    onClick={() => navigate('/results')}
+                    className="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+                  >
+                    View Results
+                  </button>
+                </>
+              ) : (
+                <div className="flex flex-col items-center space-y-4">
+                  <Loader2 className="animate-spin text-sky-600" size={48} />
+                  <p className="text-gray-600">
+                    Waiting... {allDone ? 'Finishing up' : timeLeft + 's'}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </Layout>

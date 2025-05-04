@@ -1,54 +1,68 @@
+// src/components/Features.tsx
 import React from 'react';
-import { Users, Map, Calendar, Globe } from 'lucide-react';
+import { Users, MapPin, Calendar, Globe, ClipboardList, Heart } from 'lucide-react';
 
-interface FeatureCardProps {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-}
+const FEATURE_LIST = [
+  {
+    icon: <Users className="h-6 w-6 text-sky-600" />, 
+    title: 'Group Coordination',
+    description:
+      'Easily coordinate travel plans with friends and family without the hassle of multiple bookings.',
+  },
+  {
+    icon: <MapPin className="h-6 w-6 text-sky-600" />, 
+    title: 'Destination Discovery',
+    description:
+      "Find perfect destinations that match everyone's interests and preferences.",
+  },
+  {
+    icon: <Calendar className="h-6 w-6 text-sky-600" />, 
+    title: 'Flexible Scheduling',
+    description:
+      'Find dates that work for everyone with our collaborative calendar system.',
+  },
+  {
+    icon: <Globe className="h-6 w-6 text-sky-600" />, 
+    title: 'Best Deals',
+    description:
+      'Get access to special group rates and discounts from hundreds of travel providers.',
+  },
+  {
+    icon: <ClipboardList className="h-6 w-6 text-sky-600" />, 
+    title: 'Itinerary Planner',
+    description:
+      'Build and share your trip itinerary in one collaborative document.',
+  },
+  {
+    icon: <Heart className="h-6 w-6 text-sky-600" />, 
+    title: 'Personalized Picks',
+    description:
+      'Receive personalized recommendations based on your group’s interests.',
+  },
+];
 
-const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description }) => {
-  return (
-    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-      <div className="inline-flex items-center justify-center p-3 bg-blue-50 rounded-full mb-4">
-        {icon}
+export const Features: React.FC = () => (
+  <section className="relative py-20 bg-gradient-to-b from-white to-sky-50">
+    <div className="container mx-auto px-4">
+      <h2 className="text-4xl font-bold text-center text-gray-800 mb-12">
+        Why Plan Group Trips With Us
+      </h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+        {FEATURE_LIST.map(({ icon, title, description }, idx) => (
+          <div
+            key={idx}
+            className="bg-white rounded-2xl shadow-lg border border-sky-100 p-8 text-center transform hover:-translate-y-2 transition"
+          >
+            <div className="inline-flex items-center justify-center p-4 bg-sky-50 rounded-full mb-4">
+              {icon}
+            </div>
+            <h3 className="text-2xl font-semibold mb-2 text-gray-800">{title}</h3>
+            <p className="text-gray-600">{description}</p>
+          </div>
+        ))}
       </div>
-      <h3 className="text-xl font-semibold mb-2">{title}</h3>
-      <p className="text-gray-600">{description}</p>
     </div>
-  );
-};
-
-const Features: React.FC = () => {
-  return (
-    <section className="py-16">
-      <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-center mb-12">Why Plan Group Trips With Us</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          <FeatureCard
-            icon={<Users className="h-6 w-6 text-[#0770e3]" />}
-            title="Group Coordination"
-            description="Easily coordinate travel plans with friends and family without the hassle of multiple bookings."
-          />
-          <FeatureCard
-            icon={<Map className="h-6 w-6 text-[#0770e3]" />}
-            title="Destination Discovery"
-            description="Find perfect destinations that match everyone's interests and preferences."
-          />
-          <FeatureCard
-            icon={<Calendar className="h-6 w-6 text-[#0770e3]" />}
-            title="Flexible Scheduling"
-            description="Find dates that work for everyone with our collaborative calendar system."
-          />
-          <FeatureCard
-            icon={<Globe className="h-6 w-6 text-[#0770e3]" />}
-            title="Best Deals"
-            description="Get access to special group rates and discounts from hundreds of travel providers."
-          />
-        </div>
-      </div>
-    </section>
-  );
-};
+  </section>
+);
 
 export default Features;

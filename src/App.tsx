@@ -10,6 +10,7 @@ import OriginSelectionPage from './pages/OriginSelectionPage';
 import DestinationSelectionPage from './pages/DestinationSelectionPage';
 import DateSelectionPage from './pages/DateSelectionPage';
 import ThemeSelectionPage from './pages/ThemeSelectionPage';
+import Budget from './pages/Budget';
 import WaitingRoomPage from './pages/WaitingRoomPage';
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
           <Route path="/destination-selection" element={<DestinationSelectionPage />} />
           <Route path="/date-selection" element={<DateSelectionPage />} />
           <Route path="/theme-selection" element={<ThemeSelectionPage />} />
+          <Route path="/budget" element={<Budget />} />
           <Route path="/waiting-room" element={<WaitingRoomPage />} />
         </Routes>
       </Router>

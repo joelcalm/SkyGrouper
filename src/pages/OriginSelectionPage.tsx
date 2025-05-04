@@ -1,8 +1,10 @@
-// frontend_extracted/project/src/pages/OriginSelectionPage.tsx
+// src/pages/OriginSelectionPage.tsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTripContext } from '../TripContext';
 import Layout from '../components/Layout';
+import { BackgroundDecoration } from '../components/BackgroundDecoration';
+import { ArrowLeft } from 'lucide-react';
 
 const OriginSelectionPage: React.FC = () => {
   const navigate = useNavigate();
@@ -26,12 +28,12 @@ const OriginSelectionPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!origin.trim()) {
       setError('Please enter your departure city');
       return;
     }
-    
+
     try {
       await updateOrigin(origin);
       navigate('/destination-selection');
@@ -43,60 +45,75 @@ const OriginSelectionPage: React.FC = () => {
 
   return (
     <Layout>
-      <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-lg mt-10">
-        <h1 className="text-2xl font-bold text-center mb-6">Where are you traveling from?</h1>
-        
-        {groupTripId && (
-          <div className="mb-4 p-3 bg-blue-50 rounded-md">
-            <p className="text-sm text-blue-700">
-              Group Code: <span className="font-bold">{groupTripId}</span>
-              <button 
-                className="ml-2 text-blue-600 hover:text-blue-800"
-                onClick={() => {
-                  navigator.clipboard.writeText(groupTripId);
-                  alert('Group code copied to clipboard');
-                }}
-              >
-                Copy
-              </button>
+      <div className="relative min-h-[calc(100vh-80px)] overflow-hidden bg-gradient-to-b from-sky-50 to-white">
+        <BackgroundDecoration />
+
+        <div className="container mx-auto px-4 py-12 relative z-10">
+          <div className="text-center mb-8">
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-2">
+              Where are you traveling from?
+            </h1>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Let us know your departure city so we can find the best options.
             </p>
           </div>
-        )}
-        
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label htmlFor="origin" className="block text-sm font-medium text-gray-700 mb-1">
-              Your departure city
-            </label>
-            <input
-              type="text"
-              id="origin"
-              value={origin}
-              onChange={(e) => setOrigin(e.target.value)}
-              placeholder="e.g. Barcelona"
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-            />
-            {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+
+          <div className="max-w-md mx-auto">
+            {groupTripId && (
+              <div className="mb-6 p-4 bg-blue-50 border border-sky-100 rounded-2xl">
+                <p className="text-sm text-blue-700 flex items-center justify-between">
+                  <span>
+                    Group Code: <span className="font-bold">{groupTripId}</span>
+                  </span>
+                  <button
+                    className="text-blue-600 hover:text-blue-800 text-sm"
+                    onClick={() => {
+                      navigator.clipboard.writeText(groupTripId);
+                      alert('Group code copied to clipboard');
+                    }}
+                  >
+                    Copy
+                  </button>
+                </p>
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit}>
+              <div className="bg-white border border-sky-100 rounded-2xl p-8 shadow-lg transition duration-300">
+                <label htmlFor="origin" className="block text-sm font-medium text-gray-700 mb-2">
+                  Your departure city
+                </label>
+                <input
+                  type="text"
+                  id="origin"
+                  value={origin}
+                  onChange={(e) => setOrigin(e.target.value)}
+                  placeholder="e.g. Barcelona"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent mb-4"
+                />
+                {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+
+                <div className="flex justify-between">
+                  <button
+                    type="button"
+                    onClick={() => navigate('/')}
+                    className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
+                  >
+                    <ArrowLeft size={16} className="mr-2" /> Back
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="inline-block bg-sky-600 hover:bg-sky-700 text-white font-medium px-6 py-3 rounded-lg transition duration-200 relative overflow-hidden group disabled:opacity-70 disabled:cursor-not-allowed"
+                  >
+                    {loading ? 'Saving...' : 'Next'}
+                    <span className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+                  </button>
+                </div>
+              </div>
+            </form>
           </div>
-          
-          <div className="flex justify-between mt-6">
-            <button
-              type="button"
-              onClick={() => navigate('/')}
-              className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
-            >
-              Back
-            </button>
-            
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-            >
-              {loading ? 'Saving...' : 'Next'}
-            </button>
-          </div>
-        </form>
+        </div>
       </div>
     </Layout>
   );
