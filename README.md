@@ -1,6 +1,10 @@
+
+
 # SkyGrouper
 
 > Streamlining group travel planning by bringing everyone’s preferences together in one place.
+
+![SkyGrouper](./images/SkyGrouper.png)
 
 <details>
 <summary>Table of Contents</summary>
@@ -17,7 +21,6 @@
 * [Contact](#contact)
 
 </details>
-
 ## About The Project
 
 SkyGrouper streamlines group travel planning by letting users create shared trips, invite friends, and coordinate preferences for origins, destinations, dates, budgets, and trip themes. The platform uses a React/TypeScript frontend and a Flask/Python backend with MongoDB for persistent group and user data.
@@ -108,6 +111,10 @@ SkyGrouper streamlines group travel planning by letting users create shared trip
 3. SkyGrouper aggregates everyone's data in real time and displays the optimal travel options.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
+
+## Contact
+
+Joel Calm – [@joel-calm](https://github.com/joelcalm) – [joelcalm44@gmail.com](mailto:joelcalm44@gmail.com)
 
 Project Link: [https://github.com/joelcalm/SkyGrouper](https://github.com/joelcalm/SkyGrouper)
 
