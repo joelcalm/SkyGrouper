@@ -16,15 +16,17 @@ const HomePage: React.FC = () => {
   /* ---------- UI ---------- */
   return (
     <Layout>
-      {/* --- identical wrapper / gradient / decoration as GroupEntryPage --- */}
-      <div className="relative min-h-[calc(100vh-80px)] overflow-hidden bg-gradient-to-b from-sky-50 to-white">
+      {/* Hero with no top spacing */}
+      <div className="relative">
+        <Hero />
+      </div>
+
+      {/* Rest of content */}
+      <div className="relative bg-gradient-to-b from-sky-50 to-white overflow-hidden">
         <BackgroundDecoration />
 
-        {/* --- main content container --- */}
         <div className="container mx-auto px-4 py-12 relative z-10">
-          {/* keep spacing consistent with other cards/sections */}
           <div className="space-y-24">
-            <Hero />
             <Features />
             <PopularDestinations />
           </div>
