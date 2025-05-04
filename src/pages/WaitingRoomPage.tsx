@@ -5,7 +5,7 @@ import { useTripContext } from '../TripContext';
 import Layout from '../components/Layout';
 import { BackgroundDecoration } from '../components/BackgroundDecoration';
 
-const API_BASE = import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:5050';
+const API_BASE = import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:7000';
 
 /**
  * ---------------------------------------------------------------------
